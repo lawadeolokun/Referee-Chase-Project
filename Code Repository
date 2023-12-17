@@ -1,0 +1,254 @@
+CameraFollow.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraFollow : MonoBehaviour
+{
+    public GameObject player;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.position = player.transform.position + new Vector3(0, 5, -19);
+    }
+}
+
+DestroyOutOfBounds.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DestroyOutOfBounds : MonoBehaviour
+{
+    private float topBound = -9;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(transform.position.z < topBound){
+        Destroy(gameObject);
+        }
+    }
+}
+
+MoveBackward.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MoveBackward : MonoBehaviour
+{
+    private float speed = 10;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.Translate(Vector3.back * Time.deltaTime * speed);
+    }
+}
+
+MoveForward.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MoveForward : MonoBehaviour
+{
+    private float speed = 20;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.Translate(Vector3.forward * Time.deltaTime * speed);
+    }
+}
+
+PlayerController.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    
+    private Rigidbody playerRb;
+    public float jumpForce;
+    public float gravityModifier;
+    public bool isOnGround = true;
+    public GameObject projectilePrefab;
+    public float horizontalInput;
+    public float speed = 10.0f;
+    public float xRange = 8;
+    public bool gameOver = false;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        playerRb = GetComponent<Rigidbody>();
+        Physics.gravity *= gravityModifier;
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //Player jumps when Spacebar is pressed
+        if(Input.GetKeyDown(KeyCode.Space) && isOnGround){
+        playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isOnGround = false;
+        }
+        
+        //Ball comes at player when the S button is pressed
+        if(Input.GetKeyDown(KeyCode.S)){
+            Instantiate(projectilePrefab, transform.position, projectilePrefab.transform.rotation);
+        }
+        
+        //Player can move left or right within the boundaries with arrow keys
+        horizontalInput = Input.GetAxis("Horizontal");
+        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * speed);
+        
+        if(transform.position.x < -xRange){
+            transform.position = new Vector3(-xRange, transform.position.y, transform.position.z);
+        }
+        
+        if(transform.position.x > xRange){
+            transform.position = new Vector3(xRange, transform.position.y, transform.position.z);
+        }
+    }
+    
+    private void OnCollisionEnter(Collision collision){
+        if(collision.gameObject.CompareTag("Pitch")){
+            isOnGround = true;
+        }
+        
+        else if(collision.gameObject.CompareTag("Ball")){
+            gameOver = true;
+            Debug.Log("Game Over");}
+    }
+}
+
+Referee.cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Referee : MonoBehaviour
+{
+    private Rigidbody enemyRb;
+    public float jumpForce;
+    public float gravityModifier;
+    public bool isOnGround = true;
+    public float horizontalInput;
+    public float speed = 10.0f;
+    public float xRange = 8;
+    public bool gameOver = false;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+       enemyRb = GetComponent<Rigidbody>();
+       Physics.gravity *= gravityModifier;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+       //Referee jumps when Spacebar is pressed
+        if(Input.GetKeyDown(KeyCode.Space) && isOnGround){
+        enemyRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isOnGround = false;
+        }
+        
+        //Referee can move left or right within the boundaries with arrow keys
+        horizontalInput = Input.GetAxis("Horizontal");
+        transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * speed);
+        
+        if(transform.position.x < -xRange){
+            transform.position = new Vector3(-xRange, transform.position.y, transform.position.z);
+        }
+        
+        if(transform.position.x > xRange){
+            transform.position = new Vector3(xRange, transform.position.y, transform.position.z);
+        }
+    }
+}
+
+RepeatBackground.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    private Vector3 startPos;
+    private float repeatWidth;
+    // Start is called before the first frame update
+    void Start()
+    {
+        startPos = transform.position;
+        repeatWidth = GetComponent<BoxCollider>().size.x / 2;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (transform.position.x < startPos.x - repeatWidth) {
+        transform.position = startPos;
+        }
+    }
+}
+
+SpawnManager.cs
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpawnManager : MonoBehaviour
+{
+    public GameObject[]obstaclePrefabs;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.S)) {
+            int obstacleIndex = Random.Range(0, obstaclePrefabs.Length); Instantiate(obstaclePrefabs[obstacleIndex], transform.position, obstaclePrefabs[obstacleIndex].transform.rotation); }}
+    
+}
